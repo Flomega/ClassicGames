@@ -1,0 +1,57 @@
+<!-- flappy.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flappy Bird - Retro Arcade</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: #000011;
+      color: #00FFFF;
+      font-family: 'Press Start 2P', cursive;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    h1 {
+      margin: 20px 0 10px;
+      text-shadow: 0 0 10px #00ffff;
+    }
+    #gameCanvas {
+      background: linear-gradient(to bottom, #87ceeb 0%, #004466 100%);
+      border: 4px solid #00FFFF;
+      box-shadow: 0 0 20px #00ffff;
+      display: block;
+      margin: 0 auto;
+    }
+    .back-button {
+      margin: 20px;
+      padding: 10px 20px;
+      color: #00ffff;
+      border: 2px solid #00ffff;
+      text-decoration: none;
+      text-align: center;
+      width: 200px;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #00ffff;
+      transition: background-color 0.3s ease;
+    }
+    .back-button:hover {
+      background-color: #00ffff;
+      color: #000011;
+    }
+  </style>
+</head>
+<body>
+  <h1>FLAPPY BIRD</h1>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <a href="index.html" class="back-button">Back to Arcade</a>
+
+  <script src="flappybird.js"></script>
+</body>
+</html>
