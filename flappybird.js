@@ -148,31 +148,34 @@ function drawPipe(pipe) {
   ctx.shadowColor = '#00ffff';
   ctx.shadowBlur = 20;
 
-  // Draw top pipe with rounded bottom corners
-  roundRect(ctx, pipe.x, pipe.topY, PIPE_WIDTH, pipe.topHeight, [0, 0, 15, 15], true);
+// Draw top pipe with rounded bottom corners
+roundRect(ctx, pipe.x, pipe.topY, PIPE_WIDTH, pipe.topHeight, [0, 0, 15, 15], true);
 
-  // Draw bottom pipe with rounded top corners
-  roundRect(ctx, pipe.x, pipe.bottomY, PIPE_WIDTH, pipe.bottomHeight, [15, 15, 0, 0], true);
+// Draw bottom pipe with rounded top corners
+roundRect(ctx, pipe.x, pipe.bottomY, PIPE_WIDTH, pipe.bottomHeight, [15, 15, 0, 0], true);
+
 
   ctx.shadowBlur = 0;
 }
 
 // Helper to draw rounded rect with custom corners
 // corners: array of 4 values for [top-left, top-right, bottom-right, bottom-left]
-function roundRect(ctx, x, y, w, h, corners, fill) {
+function roundRect(ctx, x, y, w, h, radii, fill) {
+  const [tl, tr, br, bl] = radii;
   ctx.beginPath();
-  ctx.moveTo(x + corners[0], y);
-  ctx.lineTo(x + w - corners[1], y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + corners[1]);
-  ctx.lineTo(x + w, y + h - corners[2]);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - corners[2], y + h);
-  ctx.lineTo(x + corners[3], y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - corners[3]);
-  ctx.lineTo(x, y + corners[0]);
-  ctx.quadraticCurveTo(x, y, x + corners[0], y);
+  ctx.moveTo(x + tl, y);
+  ctx.lineTo(x + w - tr, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + tr);
+  ctx.lineTo(x + w, y + h - br);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+  ctx.lineTo(x + bl, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - bl);
+  ctx.lineTo(x, y + tl);
+  ctx.quadraticCurveTo(x, y, x + tl, y);
   if (fill) ctx.fill();
   ctx.closePath();
 }
+
 
 function updatePipes() {
   for (let i = 0; i < pipes.length; i++) {
@@ -246,46 +249,24 @@ function drawScore() {
   ctx.shadowBlur = 15;
   ctx.textAlign = 'center';
   ctx.fillText(score, WIDTH / 2, 50);
-  ctx.shadowBlur = 0;
-}
 
-function drawGameOver() {
-  ctx.fillStyle = '#ff3300';
-  ctx.font = "48px 'Press Start 2P', cursive";
-  ctx.shadowColor = '#ff3300';
-  ctx.shadowBlur = 25;
-  ctx.textAlign = 'center';
-  ctx.fillText('GAME OVER', WIDTH / 2, HEIGHT / 2 - 20);
-
+  // HIGHSCORE
   ctx.font = "20px 'Press Start 2P', cursive";
-  ctx.shadowColor = '#ff3300';
-  ctx.shadowBlur = 12;
-  ctx.fillText('Press SPACE to restart', WIDTH / 2, HEIGHT / 2 + 30);
+  ctx.fillStyle = '#ffaa00';
+  ctx.shadowColor = '#ffaa00';
+  ctx.shadowBlur = 10;
+  ctx.fillText("HIGH SCORE: " + highScore, WIDTH / 2, 85);
   ctx.shadowBlur = 0;
 }
 
-// Draw and update particles
-function updateParticles() {
-  for (let i = particles.length - 1; i >= 0; i--) {
-    particles[i].update();
-    particles[i].draw();
+let pulseTime = 0;
+let scoreMessage = "";
+let won = false;  
 
-    if (particles[i].life <= 0 || particles[i].radius <= 0.1) {
-      particles.splice(i, 1);
-    }
-  }
-}
-
-// Clear canvas
-function clear() {
-  ctx.clearRect(0, 0, WIDTH, HEIGHT);
-}
-
-// Main game loop
-function loop() {
+function gameLoop() {
   clear();
 
-  if (!gameOver) {
+  if (!gameOver && !won) {
     frameCount++;
     bird.update();
     updatePipes();
@@ -295,23 +276,45 @@ function loop() {
     }
   }
 
-  // Draw everything
   pipes.forEach(drawPipe);
   bird.draw();
   updateParticles();
   drawScore();
 
-  if (gameOver) {
-    drawGameOver();
+  if (gameOver || won) {
+    scoreMessage = won ? "YOU WIN" : "GAME OVER";
+    drawScoreMessage();
   }
 
-  requestAnimationFrame(loop);
+  requestAnimationFrame(gameLoop);
 }
 
-// Controls
+
+function clear() {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+}
+
+function updateParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw();
+    if (particles[i].life <= 0 || particles[i].radius <= 0.1) {
+      particles.splice(i, 1);
+    }
+  }
+}
+
+canvas.addEventListener('click', () => {
+  if (gameOver || won) {
+    resetGame();
+  } else {
+    bird.flap();
+  }
+});
+
 window.addEventListener('keydown', e => {
   if (e.code === 'Space') {
-    if (gameOver) {
+    if (gameOver || won) {
       resetGame();
     } else {
       bird.flap();
@@ -319,19 +322,70 @@ window.addEventListener('keydown', e => {
   }
 });
 
-// Reset game state
+
+let highScore = 0;
+
+function loadHighScore() {
+  const saved = localStorage.getItem('flappyHighScore');
+  if (saved !== null) {
+    highScore = parseInt(saved, 10);
+  }
+}
+loadHighScore();
+
+function drawScoreMessage() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(0, HEIGHT / 2 - 70, WIDTH, 140);
+
+  ctx.font = "36px 'Press Start 2P', cursive"; 
+  ctx.fillStyle = '#00FFFF';
+  ctx.textAlign = "center";
+  ctx.shadowColor = '#00FFFF';
+  ctx.shadowBlur = 30;
+  ctx.fillText(scoreMessage, WIDTH / 2, HEIGHT / 2 - 10);
+  ctx.shadowBlur = 0;
+
+  pulseTime += 0.03;
+  if (pulseTime > 1) pulseTime = 0;
+
+  const scale = 0.7 + 0.1 * Math.abs(Math.sin(pulseTime * Math.PI * 2));
+  const alpha = 0.4 + 0.6 * Math.abs(Math.sin(pulseTime * Math.PI * 2));
+
+  ctx.save();
+  ctx.translate(WIDTH / 2, HEIGHT / 2 + 40);
+  ctx.scale(scale, scale);
+
+  ctx.font = "13px 'Press Start 2P', cursive";  
+  ctx.fillStyle = `rgba(255, 0, 0, ${alpha.toFixed(2)})`;
+  ctx.shadowColor = `rgba(255, 0, 0, ${alpha.toFixed(2)})`;
+  ctx.shadowBlur = 20;
+  ctx.textAlign = "center";
+  ctx.fillText(
+    (gameOver || won) ? "Click anywhere or press SPACE to restart" : "",
+    0, 0
+  );
+
+  ctx.restore();
+}
+
 function resetGame() {
-  bird.y = HEIGHT / 2;
-  bird.velocity = 0;
-  bird.trail = [];
-  pipes.length = 0;
-  particles.length = 0;
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('flappyHighScore', highScore);
+  }
   score = 0;
   frameCount = 0;
   gameOver = false;
-  createPipe();
+  won = false;
+  pipes.length = 0;       
+  particles.length = 0;  
+  bird.y = HEIGHT / 2;    
+  bird.velocity = 0;
+  bird.rotation = 0;
+  bird.trail.length = 0;  
 }
 
-// Start the game
+
+loadHighScore();
 resetGame();
-loop();
+gameLoop();
