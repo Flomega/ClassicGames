@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Blackjack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      padding-top: 20px;
+    }
+
+    h1 {
+      color: #ffd700;
+      box-shadow: #ffd700;
+      margin-bottom: 16px;
+      font-size: 18px;
+      user-select: none;
+    }
+
+    .hand-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .hand {
+      display: flex;
+      padding: 10px;
+      position: relative;
+    }
+
+    .card {
+  width: 60px;
+  height: 90px;
+  background: white;
+  border: 2px solid #000;
+  border-radius: 8px;
+  box-shadow: 2px 2px 8px #0004;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  position: relative;
+  padding: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 1;
+  margin-left: -20px; 
+  color: black;
+}
+
+
+    .hand .card:first-child {
+      margin-left: 0;
+    }
+
+    .hand .card:hover {
+      transform: scale(1.1) translateY(-10px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    .card .corner {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 14px;
+      line-height: 1;
+      text-align: left;
+      user-select: none;
+    }
+
+    .card .center {
+      font-size: 24px;
+      user-select: none;
+    }
+
+    .card.red {
+      color: red;
+    }
+
+    .card.back {
+      background: repeating-linear-gradient(
+        45deg,
+        #c00,
+        #c00 5px,
+        #a00 5px,
+        #a00 10px
+      );
+      color: transparent;
+    }
+
+    .card.back::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(#fff2 1px, transparent 0),
+        radial-gradient(#fff2 1px, transparent 0);
+      background-position: 0 0, 10px 10px;
+      background-size: 20px 20px;
+      pointer-events: none;
+      opacity: 0.2;
+    }
+
+    .total {
+      font-size: 12px;
+      color: #ffd700;
+      text-shadow: 0 0 6px #f0f;
+    }
+
+.button {
+  background: radial-gradient(circle at top left, #2e8b57, #1a4d2e); 
+  border: 3px solid #ffd700;
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-size: 12px;
+  font-family: 'Press Start 2P', monospace;
+  color: #ffd700;
+  text-shadow: 0 0 5px #ffd700;
+  box-shadow:
+    inset 0 0 5px #fff3,
+    0 0 12px #ffd70055;
+  margin: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button:hover {
+  transform: scale(1.05);
+  box-shadow:
+    0 0 20px gold,
+    inset 0 0 6px #fff5;
+  cursor: pointer;
+}
+
+.button:active {
+  transform: scale(0.97);
+  box-shadow:
+    inset 0 0 10px #ffd700,
+    0 0 6px #000;
+}
+
+
+    #message {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #fff;
+      text-shadow: 0 0 8px #fff;
+    }
+
+
+
+  </style>
+</head>
+<body>
+  <h1>BLACKJACK</h1>
+
+  <div class="hand-container">
+    <div class="total">Dealer Total: <span id="dealer-total">??</span></div>
+    <div class="hand" id="dealer-cards"></div>
+  </div>
+
+  <div class="hand-container">
+    <div class="total">Player Total: <span id="player-total">0</span></div>
+    <div class="hand" id="player-cards"></div>
+  </div>
+
+  <div>
+    <button class="button" id="hit-btn">Hit</button>
+    <button class="button" id="stand-btn">Stand</button>
+    <button class="button" id="restart-btn">Restart</button>
+  </div>
+
+  <div id="message"></div>
+
+  <script>
+    const suits = ['♠', '♥', '♦', '♣'];
+    const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+    let deck = [];
+    let playerHand = [];
+    let dealerHand = [];
+    let gameOver = false;
+    let revealDealer = false;
+
+    function createDeck() {
+      const d = [];
+      for (const suit of suits) {
+        for (const value of values) {
+          d.push({ suit, value });
+        }
+      }
+      return d.sort(() => Math.random() - 0.5);
+    }
+
+    function getHandValue(hand) {
+      let total = 0;
+      let aces = 0;
+      for (const card of hand) {
+        if (['J', 'Q', 'K'].includes(card.value)) {
+          total += 10;
+        } else if (card.value === 'A') {
+          total += 11;
+          aces++;
+        } else {
+          total += parseInt(card.value);
+        }
+      }
+      while (total > 21 && aces > 0) {
+        total -= 10;
+        aces--;
+      }
+      return total;
+    }
+
+    function renderCards(container, hand, hideFirstCard = false) {
+      container.innerHTML = '';
+      hand.forEach((card, index) => {
+        const cardDiv = document.createElement('div');
+        cardDiv.classList.add('card');
+        const isRed = card.suit === '♥' || card.suit === '♦';
+
+        if (hideFirstCard && index === 0 && !revealDealer) {
+          cardDiv.classList.add('back');
+        } else {
+          if (isRed) cardDiv.classList.add('red');
+
+          const corner = document.createElement('div');
+          corner.classList.add('corner');
+          corner.innerHTML = card.value + '<br>' + card.suit;
+          cardDiv.appendChild(corner);
+
+          const center = document.createElement('div');
+          center.classList.add('center');
+          center.textContent = card.value + ' ' + card.suit;
+          cardDiv.appendChild(center);
+        }
+
+        container.appendChild(cardDiv);
+      });
+    }
+
+    function updateUI() {
+      renderCards(document.getElementById("player-cards"), playerHand);
+      renderCards(document.getElementById("dealer-cards"), dealerHand, true);
+
+      document.getElementById("player-total").textContent = getHandValue(playerHand);
+      document.getElementById("dealer-total").textContent = revealDealer ? getHandValue(dealerHand) : "??";
+    }
+
+    function hit() {
+      if (gameOver) return;
+      playerHand.push(deck.pop());
+      updateUI();
+      if (getHandValue(playerHand) > 21) {
+        revealDealer = true;
+        endGame("You busted! Dealer wins.");
+      }
+    }
+
+    function stand() {
+      if (gameOver) return;
+      revealDealer = true;
+
+      while (getHandValue(dealerHand) < 17) {
+        dealerHand.push(deck.pop());
+      }
+
+      const playerTotal = getHandValue(playerHand);
+      const dealerTotal = getHandValue(dealerHand);
+
+      if (dealerTotal > 21 || playerTotal > dealerTotal) {
+        endGame("You win!");
+      } else if (dealerTotal > playerTotal) {
+        endGame("Dealer wins.");
+      } else {
+        endGame("It's a draw.");
+      }
+    }
+
+    function endGame(msg) {
+      gameOver = true;
+      document.getElementById("message").textContent = msg;
+      updateUI();
+    }
+
+    function restart() {
+      deck = createDeck();
+      playerHand = [deck.pop(), deck.pop()];
+      dealerHand = [deck.pop(), deck.pop()];
+      gameOver = false;
+      revealDealer = false;
+      document.getElementById("message").textContent = "";
+      updateUI();
+    }
+
+    document.getElementById("hit-btn").onclick = hit;
+    document.getElementById("stand-btn").onclick = stand;
+    document.getElementById("restart-btn").onclick = restart;
+
+    restart();
+  </script>
+</body>
+</html>
