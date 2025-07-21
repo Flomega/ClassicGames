@@ -10,6 +10,9 @@ const ballRadius = 12;
 
 let leftScore = 0;
 let rightScore = 0;
+let gamePaused = false;
+let scoreMessage = "";
+let pulseTime = 0;
 
 const leftPaddle = {
   x: 30,
@@ -39,19 +42,10 @@ const ball = {
   trail: []
 };
 
-// Game pause and message state
-let gamePaused = false;
-let scoreMessage = "";
-
-// Variables for pulsating animation (0 to 1)
-let pulseTime = 0;
-
-// Utility for linear interpolation (easing)
 function lerp(start, end, t) {
   return start + (end - start) * t;
 }
 
-// Draw neon glowing rounded rectangle for paddles
 function drawPaddle(paddle) {
   const gradient = ctx.createLinearGradient(paddle.x, paddle.y, paddle.x + paddle.width, paddle.y + paddle.height);
   gradient.addColorStop(0, '#00FFE7');
@@ -77,7 +71,6 @@ function drawPaddle(paddle) {
   ctx.shadowBlur = 0;
 }
 
-// Draw ball with glow and trailing effect
 function drawBall() {
   for (let i = 0; i < ball.trail.length; i++) {
     const pos = ball.trail[i];
@@ -104,7 +97,6 @@ function drawBall() {
   ctx.shadowBlur = 0;
 }
 
-// Draw center dashed line with glow
 function drawNet() {
   ctx.strokeStyle = 'rgba(0, 255, 255, 0.4)';
   ctx.lineWidth = 4;
@@ -119,7 +111,6 @@ function drawNet() {
   ctx.shadowBlur = 0;
 }
 
-// Draw scores with neon effect
 function drawScores() {
   ctx.font = "72px 'Orbitron', sans-serif";
   ctx.textAlign = "center";
@@ -133,13 +124,10 @@ function drawScores() {
   ctx.shadowBlur = 0;
 }
 
-// Draw the scoring message overlay with pulsating "Press SPACE to continue"
 function drawScoreMessage() {
-  // Background dark overlay behind message
   ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
   ctx.fillRect(0, canvas.height / 2 - 70, canvas.width, 140);
 
-  // Main score message, smaller font
   ctx.font = "48px 'Orbitron', sans-serif";
   ctx.fillStyle = '#00FFFF';
   ctx.textAlign = "center";
@@ -148,14 +136,10 @@ function drawScoreMessage() {
   ctx.fillText(scoreMessage, canvas.width / 2, canvas.height / 2 - 10);
   ctx.shadowBlur = 0;
 
-  // Pulsate "Press SPACE to continue" below main message
-  // Calculate pulse: pulseTime cycles from 0 to 1, repeat
   pulseTime += 0.03;
   if (pulseTime > 1) pulseTime = 0;
 
-  // Interpolate scale (0.9 to 1.1)
   const scale = 0.9 + 0.2 * Math.abs(Math.sin(pulseTime * Math.PI * 2));
-  // Interpolate alpha (0.4 to 1)
   const alpha = 0.4 + 0.6 * Math.abs(Math.sin(pulseTime * Math.PI * 2));
 
   ctx.save();
@@ -172,7 +156,14 @@ function drawScoreMessage() {
   ctx.restore();
 }
 
-// Update paddles based on their dy velocity
+function drawBackground() {
+  const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, canvas.width / 6, canvas.width / 2, canvas.height / 2, canvas.width);
+  grad.addColorStop(0, '#001122');
+  grad.addColorStop(1, '#000000');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
 function updatePaddles() {
   leftPaddle.y += leftPaddle.dy;
   leftPaddle.y = Math.max(0, Math.min(canvas.height - leftPaddle.height, leftPaddle.y));
@@ -182,7 +173,6 @@ function updatePaddles() {
   rightPaddle.y = Math.max(0, Math.min(canvas.height - rightPaddle.height, rightPaddle.y));
 }
 
-// Reset ball position and speed
 function resetBall() {
   ball.x = canvas.width / 2;
   ball.y = canvas.height / 2;
@@ -192,7 +182,6 @@ function resetBall() {
   ball.trail = [];
 }
 
-// Update ball position and handle collisions
 function updateBall() {
   ball.x += ball.dx;
   ball.y += ball.dy;
@@ -204,9 +193,12 @@ function updateBall() {
     ball.dy = -ball.dy;
   }
 
-  if (ball.x - ball.radius < leftPaddle.x + leftPaddle.width &&
-      ball.y > leftPaddle.y &&
-      ball.y < leftPaddle.y + leftPaddle.height) {
+  // Left paddle collision
+  if (
+    ball.x - ball.radius < leftPaddle.x + leftPaddle.width &&
+    ball.y > leftPaddle.y &&
+    ball.y < leftPaddle.y + leftPaddle.height
+  ) {
     ball.dx = -ball.dx;
     const collidePoint = ball.y - (leftPaddle.y + leftPaddle.height / 2);
     const normalized = collidePoint / (leftPaddle.height / 2);
@@ -215,9 +207,12 @@ function updateBall() {
     ball.dx = (ball.dx > 0 ? 1 : -1) * ball.speed;
   }
 
-  if (ball.x + ball.radius > rightPaddle.x &&
-      ball.y > rightPaddle.y &&
-      ball.y < rightPaddle.y + rightPaddle.height) {
+  // Right paddle collision
+  if (
+    ball.x + ball.radius > rightPaddle.x &&
+    ball.y > rightPaddle.y &&
+    ball.y < rightPaddle.y + rightPaddle.height
+  ) {
     ball.dx = -ball.dx;
     const collidePoint = ball.y - (rightPaddle.y + rightPaddle.height / 2);
     const normalized = collidePoint / (rightPaddle.height / 2);
@@ -226,6 +221,7 @@ function updateBall() {
     ball.dx = (ball.dx > 0 ? 1 : -1) * ball.speed;
   }
 
+  // Score
   if (ball.x - ball.radius < 0) {
     rightScore++;
     scoreMessage = "Corbob scored!";
@@ -239,16 +235,31 @@ function updateBall() {
   }
 }
 
-// Clear canvas and draw background gradient
-function drawBackground() {
-  const grad = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, canvas.width / 6, canvas.width / 2, canvas.height / 2, canvas.width);
-  grad.addColorStop(0, '#001122');
-  grad.addColorStop(1, '#000000');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+const keys = {};
+window.addEventListener("keydown", (e) => {
+  keys[e.key.toLowerCase()] = true;
+
+  if (e.code === "Space" && gamePaused) {
+    resetBall();
+    gamePaused = false;
+    scoreMessage = "";
+  }
+});
+window.addEventListener("keyup", (e) => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+function handleInput() {
+  // W/S or Arrow Up/Down control left paddle
+  if (keys["w"] || keys["arrowup"]) {
+    leftPaddle.dy = -leftPaddle.speed;
+  } else if (keys["s"] || keys["arrowdown"]) {
+    leftPaddle.dy = leftPaddle.speed;
+  } else {
+    leftPaddle.dy = 0;
+  }
 }
 
-// Main draw function
 function draw() {
   drawBackground();
   drawNet();
@@ -256,33 +267,12 @@ function draw() {
   drawPaddle(rightPaddle);
   drawBall();
   drawScores();
-}
 
-// Key handling for left paddle control
-const keys = {};
-window.addEventListener('keydown', e => {
-  keys[e.key.toLowerCase()] = true;
-  if (e.code === "Space" && gamePaused) {
-    resetBall();
-    gamePaused = false;
-    scoreMessage = "";
-  }
-});
-window.addEventListener('keyup', e => {
-  keys[e.key.toLowerCase()] = false;
-});
-
-function handleInput() {
-  if (keys['arrowup']) {
-    leftPaddle.dy = -leftPaddle.speed;
-  } else if (keys['arrowdown']) {
-    leftPaddle.dy = leftPaddle.speed;
-  } else {
-    leftPaddle.dy = 0;
+  if (gamePaused) {
+    drawScoreMessage();
   }
 }
 
-// Main game loop
 function loop() {
   handleInput();
   if (!gamePaused) {
@@ -290,13 +280,8 @@ function loop() {
     updateBall();
   }
   draw();
-  if (gamePaused) {
-    drawScoreMessage();
-  }
   requestAnimationFrame(loop);
 }
 
-// Start game
 resetBall();
 loop();
- 
