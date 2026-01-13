@@ -1,0 +1,102 @@
+
+body {
+  background: #000;
+  color: #0ff;
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+  margin: 0;
+  overflow: hidden;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #f0f;
+  text-shadow: 0 0 8px #f0f;
+  margin-bottom: 2rem;
+  z-index: 3;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  z-index: 3;
+}
+
+.button {
+  padding: 1rem 2rem;
+  color: #000;
+  background: #0ff;
+  text-decoration: none;
+  font-size: 1rem;
+  border: 3px solid #f0f;
+  box-shadow: 0 0 12px #0ff;
+  transition: 0.2s ease-in-out;
+  margin-top: 20px;
+}
+
+.button:hover {
+  background: #f0f;
+  color: #0ff;
+  box-shadow: 0 0 16px #f0f;
+}
+
+.background-lines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.line {
+  position: absolute;
+  width: 14px;
+  height: 320px;
+  background: #ff0000;
+  box-shadow: 0 0 25px #ff0000, 0 0 60px white;
+  border-radius: 10px;
+  opacity: 1;
+  transform-origin: top left;
+  top: 0;
+}
+.background-lines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; 
+  z-index: 0; 
+}
+
+.screen {
+  position: relative;
+  z-index: 10; 
+}
+.pong-buttons {
+  display: flex;
+  gap: 10px; /* space between buttons */
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.pong-buttons .button {
+  flex: 1;            /* each button takes equal width */
+  text-align: center;
+}
+

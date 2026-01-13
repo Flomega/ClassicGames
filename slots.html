@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <a href="index.html" class="button">Back to Menu</a>
+  <title>Slots</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #ffd700;
+      margin-bottom: 30px;
+      margin-top: 30px;
+      font-size: 18px;
+      text-shadow: 0 0 8px gold;
+    }
+
+    .slot-machine {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(145deg, #4b4b4b, #222);
+  border: 8px solid #c9a03f; /* warm gold */
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow:
+    inset 0 4px 6px rgba(255, 255, 255, 0.2),
+    0 8px 20px rgba(201, 160, 63, 0.8),
+    0 0 40px rgba(201, 160, 63, 0.5);
+  position: relative;
+  width: 300px;
+  height: 130px;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.25), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1), transparent 50%);
+}
+
+.reel {
+  width: 90px;
+  height: 90px;
+  margin: 0 10px;
+  background: linear-gradient(145deg, #333, #1a1a1a);
+  border: 6px solid #c9a03f;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 48px;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow:
+    0 0 10px #ffd700,
+    0 0 20px #c9a03f;
+  box-shadow:
+    inset 0 3px 10px rgba(255, 255, 255, 0.15),
+    inset 0 -3px 10px rgba(0,0,0,0.6),
+    0 4px 6px rgba(0,0,0,0.7);
+  position: relative;
+  user-select: none;
+}
+
+.reel::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0) 50%, rgba(255,255,255,0.12));
+  pointer-events: none;
+}
+
+.reel:active {
+  box-shadow:
+    inset 0 3px 15px rgba(255, 255, 255, 0.4),
+    0 6px 12px rgba(201, 160, 63, 1);
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+
+    .button {
+      background: radial-gradient(circle at top left, #2e8b57, #1a4d2e);
+      border: 4px solid #ffd700;
+      border-radius: 8px;
+      padding: 14px 28px;
+      font-size: 12px;
+      font-family: 'Press Start 2P', monospace;
+      color: #ffd700;
+      text-shadow: 0 0 5px #ffd700;
+      box-shadow: inset 0 0 5px #fff3, 0 0 12px #ffd70055;
+      margin-top: 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px gold, inset 0 0 6px #fff5;
+    }
+
+    .message {
+      margin-top: 20px;
+      color: #ffd700;
+      font-size: 12px;
+      text-shadow: 0 0 5px gold;
+      min-height: 1.2em;
+    }
+
+    .win {
+      color: #00ff00;
+      text-shadow: 0 0 8px #0f0, 0 0 16px #0f0;
+      animation: flash 0.5s alternate infinite;
+    }
+
+    @keyframes flash {
+      from { opacity: 1; }
+      to { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎰 SLOTS 🎰</h1>
+
+  <div class="slot-machine">
+    <div class="reel" id="reel1">🍒</div>
+    <div class="reel" id="reel2">🍋</div>
+    <div class="reel" id="reel3">⭐</div>
+  </div>
+
+  <button class="button" onclick="spin()">SPIN</button>
+
+  <div class="message" id="message">Press SPIN to play!</div>
+
+  <script>
+    const symbols = ["🍒", "🍋", "🔔", "⭐", "🍀", "💎", "7️⃣"];
+    const reels = [
+      document.getElementById("reel1"),
+      document.getElementById("reel2"),
+      document.getElementById("reel3")
+    ];
+    const message = document.getElementById("message");
+    let spinning = false;
+
+    function spin() {
+      if (spinning) return;
+      spinning = true;
+      message.textContent = "Spinning...";
+      message.classList.remove("win");
+
+      const results = [];
+
+      // Animate each reel separately
+      reels.forEach((reel, index) => {
+        let spins = 20 + Math.floor(Math.random() * 10);
+        let i = 0;
+
+        const interval = setInterval(() => {
+          const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+          reel.textContent = symbol;
+          i++;
+          if (i >= spins) {
+            clearInterval(interval);
+            results[index] = symbol;
+
+            // Check win after last reel stops
+            if (results.length === 3 && results.every(r => r)) {
+              checkWin(results);
+              spinning = false;
+            }
+          }
+        }, 100);
+      });
+    }
+
+    function checkWin(results) {
+      if (results[0] === results[1] && results[1] === results[2]) {
+        message.textContent = `🎉 JACKPOT! ${results[0]} ${results[1]} ${results[2]}`;
+        message.classList.add("win");
+      } else {
+        message.textContent = `😢 You got ${results.join(" ")}. Try again!`;
+      }
+    }
+  </script>
+</body>
+</html>
+

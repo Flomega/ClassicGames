@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flomega's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      font-family: 'Press Start 2P', monospace;
+      color: #0ff;
+      overflow-y: auto;
+    }
+
+    .arcade-frame {
+      width: 100vw;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      background: radial-gradient(circle, #111 60%, #000 100%);
+      padding: 60px 0;
+    }
+
+    .background-tetris {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .background-haze {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(6px);
+      background-color: rgba(0, 0, 0, 0.3);
+      z-index: 0.5;
+    }
+
+    .block {
+      width: 30px;
+      height: 30px;
+      position: absolute;
+      background-color: currentColor;
+      box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.3),
+                  inset 2px 2px 0 rgba(255, 255, 255, 0.3);
+      border: 1px solid #000;
+      box-sizing: border-box;
+    }
+
+    .shape-I { color: #00f0f0; }
+    .shape-T { color: #a000f0; }
+    .shape-O { color: #f0f000; }
+    .shape-L { color: #f0a000; }
+    .shape-J { color: #0000f0; }
+    .shape-S { color: #00f000; }
+    .shape-Z { color: #f00000; }
+
+    .screen {
+      background: rgba(17, 17, 17, 0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 8px ridge #ff0044;
+      padding: 30px;
+      max-width: 800px;
+      width: 95%;
+      box-shadow: 0 0 25px #0ff, inset 0 0 25px #0ff;
+      text-align: center;
+      z-index: 1;
+      margin-bottom: 40px; /* This adds spacing between screens */
+    }
+
+    .title {
+      font-size: 20px;
+      text-shadow: 0 0 10px #0ff;
+      margin-bottom: 30px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .arcade-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 24px;
+      margin: 10px;
+      font-size: 13px;
+      font-family: 'Press Start 2P', monospace;
+      color: #00ffff;
+      text-decoration: none;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: #111122;
+      border: 3px solid #00ffff;
+      border-radius: 12px;
+      text-shadow: 0 0 3px #00ffff, 0 0 6px #00ffff;
+      box-shadow: 0 0 8px #00ffff, inset 0 0 6px #002233;
+      transition: all 0.2s ease;
+      height: 50%;
+    }
+
+    .arcade-button:hover {
+      background: #002244;
+      color: #ffffff;
+      text-shadow: 0 0 4px #ffffff, 0 0 8px #00ffff;
+      box-shadow: 0 0 12px #00ffff, inset 0 0 10px #00ffff;
+      transform: scale(1.05);
+    }
+
+    .casino-screen {
+      border-color: gold;
+      box-shadow: 0 0 25px gold, inset 0 0 25px gold;
+    }
+
+    .casino-screen .title {
+      text-shadow: 0 0 10px gold;
+      color: gold;
+    }
+
+    .casino-button {
+      color: #fff;
+      border-color: gold;
+      background: #222;
+      text-shadow: 0 0 3px gold, 0 0 6px gold;
+      box-shadow: 0 0 8px gold, inset 0 0 6px #442;
+    }
+
+    .casino-button:hover {
+      background: #440000;
+      color: #fffacd;
+      text-shadow: 0 0 4px #fffacd, 0 0 8px gold;
+      box-shadow: 0 0 12px gold, inset 0 0 10px gold;
+    }
+
+    audio { display: none; }
+  </style>
+</head>
+<body>
+  <div class="arcade-frame">
+    <div class="background-tetris" id="bg-tetris"></div>
+    <div class="background-haze"></div>
+
+   
+    <div class="screen">
+      <h1 class="title">🎮 FLOMEGAS ARCADE 🎮</h1>
+      <div class="menu-grid">
+        <a href="tetris.html" class="arcade-button">TETRIS</a>
+        <a href="snake.html" class="arcade-button">SNAKE</a>
+        <a href="pong.html" class="arcade-button">PONG</a>
+        <a href="twoplayerpong.html" class="arcade-button">2 PLAYER PONG</a>
+        <a href="flappybird.html" class="arcade-button">FLAPPY BIRD</a>
+        <a href="brickbreaker.html" class="arcade-button">BRICK BREAKER</a>
+        <a href="crossyroads.html" class="arcade-button">CROSSY ROAD</a>
+        <a href="BikeTrails.html" class="arcade-button">TRON</a>
+        <a href="PrisonEscape.html" class="arcade-button">PRISON ESCAPE</a>
+      </div>
+    </div>
+
+   
+    <div class="screen casino-screen">
+      <h1 class="title">🎰 FLOMEGAS CASINO 🎰</h1>
+      <div class="menu-grid">
+        <a href="BJ.html" class="arcade-button casino-button">BLACKJACK</a>
+        <a href="roulette.html" class="arcade-button casino-button">ROULETTE</a>
+        <a href="RussianRoulette.html" class="arcade-button casino-button">RUSSIAN ROULETTE</a>
+        <a href="slots.html" class="arcade-button casino-button">SLOTS</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('bg-tetris');
+    const BLOCK_SIZE = 30;
+    const COLS = Math.floor(window.innerWidth / BLOCK_SIZE);
+    const ROWS = Math.floor(window.innerHeight / BLOCK_SIZE);
+    const stack = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+
+    const shapes = {
+      I: [1, 5, 9, 13],
+      T: [1, 4, 5, 6],
+      O: [0, 1, 4, 5],
+      L: [1, 5, 9, 10],
+      J: [1, 5, 9, 8],
+      S: [1, 2, 4, 5],
+      Z: [0, 1, 5, 6],
+    };
+
+    const shapeClasses = Object.keys(shapes);
+
+    function createShapeGrid(type) {
+      const cells = shapes[type];
+      const grid = Array.from({ length: 4 }, () => Array(4).fill(0));
+      cells.forEach(i => grid[Math.floor(i / 4)][i % 4] = 1);
+      return grid;
+    }
+
+    function isValid(grid, x, y) {
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c]) {
+            const newX = x + c;
+            const newY = y + r;
+            if (
+              newX < 0 || newX >= COLS ||
+              newY >= ROWS ||
+              (newY >= 0 && stack[newY][newX])
+            ) {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
+
+    function drawBlock(x, y, color) {
+      const block = document.createElement('div');
+      block.className = `block ${color}`;
+      block.style.left = `${x * BLOCK_SIZE}px`;
+      block.style.top = `${y * BLOCK_SIZE}px`;
+      container.appendChild(block);
+      return block;
+    }
+
+    function placeOnStack(grid, x, y, color) {
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+          if (grid[r][c]) {
+            const gx = x + c;
+            const gy = y + r;
+            stack[gy][gx] = drawBlock(gx, gy, color);
+          }
+        }
+      }
+    }
+
+    function isTopReached() {
+      return stack[0].some(cell => cell !== null);
+    }
+
+    function clearStack() {
+      stack.forEach(row => row.forEach(cell => {
+        if (cell) container.removeChild(cell);
+      }));
+      for (let r = 0; r < ROWS; r++) {
+        stack[r].fill(null);
+      }
+    }
+
+    function dropShape() {
+      const type = shapeClasses[Math.floor(Math.random() * shapeClasses.length)];
+      const grid = createShapeGrid(type);
+      const color = `shape-${type}`;
+      let x = Math.floor(Math.random() * (COLS - 4));
+      let y = 0;
+
+      const blocks = [];
+
+      function animate() {
+        setTimeout(() => {
+          if (isValid(grid, x, y + 1)) {
+            y++;
+            requestAnimationFrame(animate);
+          } else {
+            placeOnStack(grid, x, y, color);
+            if (isTopReached()) setTimeout(clearStack, 500);
+          }
+
+          blocks.forEach(b => container.removeChild(b));
+          blocks.length = 0;
+
+          for (let r = 0; r < 4; r++) {
+            for (let c = 0; c < 4; c++) {
+              if (grid[r][c]) {
+                blocks.push(drawBlock(x + c, y + r, color));
+              }
+            }
+          }
+        }, 80);
+      }
+
+      animate();
+    }
+
+    setInterval(dropShape, 1500);
+  </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Snake</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="screen">
+    <h1>SNAKE</h1>
+    <canvas id="snakeCanvas" width="640" height="400"></canvas>
+    <a href="index.html" class="button">Back to Menu</a>
+  </div>
+
+  <script>
+    const bg = document.getElementById('bg-lines');
+    for (let i = 0; i < 10; i++) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      line.style.left = Math.random() * 100 + 'vw';
+      line.style.top = Math.random() * 100 + 'vh';
+      line.style.height = '320px';
+      line.style.width = '14px';
+      line.style.transform = `rotate(${(Math.random() * 90 - 45)}deg)`;
+      bg.appendChild(line);
+    }
+  </script>
+
+  <script src="snake.js"></script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tetris</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    canvas {
+      background: black;
+      display: block;
+      margin: 2rem auto;
+      border: 4px solid #0ff;
+      box-shadow: 0 0 25px #0ff;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen">
+    <h1>TETRIS</h1>
+    <canvas id="tetris" width="240" height="400"></canvas>
+    <a class="button" href="index.html">Back to Menu</a>
+  </div>
+
+  <div class="background-lines" id="bg-lines"></div>
+
+<div class="screen">
+  <!-- Example content below; replace with your actual game elements -->
+  <h1>GAME TITLE</h1>
+  <canvas id="gameCanvas" width="640" height="400"></canvas>
+  <a href="index.html" class="button">Back to Menu</a>
+</div>
+
+  <script>
+    const bg = document.getElementById('bg-lines');
+    for (let i = 0; i < 10; i++) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      line.style.left = Math.random() * 100 + 'vw';
+      line.style.top = Math.random() * 100 + 'vh';
+      line.style.height = '320px';
+      line.style.width = '14px';
+      line.style.transform = `rotate(${(Math.random() * 90 - 45)}deg)`;
+      bg.appendChild(line);
+    }
+  </script>
+
+  <script src="tetris.js"></script>
+</body>
+</html>

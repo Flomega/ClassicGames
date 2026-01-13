@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <a href="index.html" class="button">Back to Menu</a>
+  <title>Russian Roulette</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: #ffd700;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-size: 16px;
+      text-shadow: 0 0 8px gold;
+      margin-top: 30px;
+    }
+
+        .button {
+      background: radial-gradient(circle at top left, #2e8b57, #1a4d2e);
+      border: 4px solid #ffd700;
+      border-radius: 8px;
+      padding: 14px 28px;
+      font-size: 12px;
+      font-family: 'Press Start 2P', monospace;
+      color: #ffd700;
+      text-shadow: 0 0 5px #ffd700;
+      box-shadow: inset 0 0 5px #fff3, 0 0 12px #ffd70055;
+      margin-top: 20px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px gold, inset 0 0 6px #fff5;
+    }
+
+    .barrel {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: #222;
+      border: 10px solid #cd9f1f;
+      
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .chamber {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: #444;
+      border: 3px solid #777;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: inset 0 0 8px #000;
+      color: #fff;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .chamber:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 12px #ffd700;
+    }
+
+    .chamber.active {
+      background: #ffd700;
+      color: black;
+      box-shadow: 0 0 12px gold;
+    }
+
+    .trigger {
+      background: radial-gradient(circle at top left, #2e8b57, #1a4d2e);
+      border: 3px solid #ffd700;
+      border-radius: 8px;
+      padding: 14px 28px;
+      font-size: 12px;
+      color: #ffd700;
+      text-shadow: 0 0 5px #ffd700;
+      box-shadow: inset 0 0 5px #fff3, 0 0 12px #ffd70055;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .trigger:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px gold, inset 0 0 6px #fff5;
+    }
+
+    .message {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #ffd700;
+      text-shadow: 0 0 5px gold;
+      min-height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔫 RUSSIAN ROULETTE 🔫</h1>
+  <div class="barrel" id="barrel"></div>
+  <button class="trigger" id="fireBtn" disabled>SPIN & FIRE</button>
+  <div class="message" id="message">Pick a chamber.</div>
+
+  <script>
+    const barrel = document.getElementById('barrel');
+    const fireBtn = document.getElementById('fireBtn');
+    const message = document.getElementById('message');
+    let selectedChamber = null;
+    let loadedChamber = Math.floor(Math.random() * 6); // random bullet position
+
+    function createBarrel() {
+      for (let i = 0; i < 6; i++) {
+        const angle = i * 60; // 360/6 = 60 degrees apart
+        const chamber = document.createElement('div');
+        chamber.classList.add('chamber');
+        chamber.style.transform = `rotate(${angle}deg) translateY(-120px) rotate(-${angle}deg)`;
+        chamber.textContent = i + 1;
+        chamber.dataset.index = i;
+
+        chamber.onclick = () => {
+          if (fireBtn.disabled === false) return; // Prevent re-selecting during spin
+          document.querySelectorAll('.chamber').forEach(c => c.classList.remove('active'));
+          chamber.classList.add('active');
+          selectedChamber = i;
+          message.textContent = `Chamber ${i + 1} selected. Click SPIN & FIRE.`;
+          fireBtn.disabled = false;
+        };
+
+        barrel.appendChild(chamber);
+      }
+    }
+
+    function spinAndFire() {
+      if (selectedChamber === null) {
+        message.textContent = 'Pick a chamber first!';
+        return;
+      }
+
+      fireBtn.disabled = true;
+      message.textContent = 'Spinning...';
+
+      let spinCount = 0;
+      let currentIndex = 0;
+
+      const spinInterval = setInterval(() => {
+        document.querySelectorAll('.chamber').forEach(c => c.classList.remove('active'));
+        const activeChamber = document.querySelector(`.chamber[data-index="${currentIndex}"]`);
+        activeChamber.classList.add('active');
+
+        if (spinCount > 20 && currentIndex === loadedChamber) {
+          clearInterval(spinInterval);
+          if (currentIndex === selectedChamber) {
+            message.textContent = '💥 BANG! You are DEAD.';
+            message.style.color = 'red';
+            message.style.textShadow = '0 0 8px red';
+          } else {
+            message.textContent = 'Click! You survived.';
+            message.style.color = '#00ff00';
+            message.style.textShadow = '0 0 8px #00ff00';
+          }
+          resetGame();
+        }
+
+        currentIndex = (currentIndex + 1) % 6;
+        spinCount++;
+      }, 150);
+    }
+
+    function resetGame() {
+      setTimeout(() => {
+        message.textContent = 'Pick a chamber.';
+        message.style.color = '#ffd700';
+        message.style.textShadow = '0 0 5px gold';
+        selectedChamber = null;
+        loadedChamber = Math.floor(Math.random() * 6);
+        fireBtn.disabled = true;
+        document.querySelectorAll('.chamber').forEach(c => c.classList.remove('active'));
+      }, 2500);
+    }
+
+    fireBtn.onclick = spinAndFire;
+    createBarrel();
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!-- flappy.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Flappy Bird </title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      background: #000011;
+      color: #00FFFF;
+      font-family: 'Press Start 2P', cursive;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    h1 {
+      margin: 20px 0 10px;
+      text-shadow: 0 0 10px #00ffff;
+    }
+    #gameCanvas {
+      background: linear-gradient(to bottom, #87ceeb 0%, #004466 100%);
+      border: 4px solid #00FFFF;
+      box-shadow: 0 0 20px #00ffff;
+      display: block;
+      margin: 0 auto;
+    }
+    .button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 1rem 2rem;
+      color: #000;
+      background: #0ff;
+      border: 3px solid #f0f;
+      box-shadow: 0 0 12px #0ff;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: 0.2s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <h1>FLAPPY BIRD</h1>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <a href="index.html" class="button">Back to Arcade</a>
+
+
+  <script src="flappybird.js"></script>
+</body>
+</html>

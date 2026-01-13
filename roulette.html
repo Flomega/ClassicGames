@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <a href="index.html" class="button">Back to Menu</a>
+  <title>Roulette</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #ffd700;
+      margin-bottom: 20px;
+      font-size: 16px;
+      text-shadow: 0 0 8px gold;
+      margin-top: 30px;
+    }
+
+    .roulette-board {
+      display: grid;
+      grid-template-columns: repeat(12, 50px);
+      grid-template-rows: repeat(3, 50px);
+      gap: 4px;
+      background: #222;
+      padding: 10px;
+      border: 4px solid gold;
+      box-shadow: 0 0 20px gold;
+      margin-bottom: 20px;
+    }
+
+    .cell {
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      box-shadow: inset 0 0 4px #000;
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+
+    .cell:hover {
+      transform: scale(1.1);
+    }
+
+    .green { background-color: green; color: #fff; }
+    .red   { background-color: darkred; color: #fff; }
+    .black { background-color: #111; color: #fff; }
+
+    .button {
+      background: radial-gradient(circle at top left, #2e8b57, #1a4d2e);
+      border: 3px solid #ffd700;
+      border-radius: 8px;
+      padding: 14px 28px;
+      font-size: 12px;
+      font-family: 'Press Start 2P', monospace;
+      color: #ffd700;
+      text-shadow: 0 0 5px #ffd700;
+      box-shadow: inset 0 0 5px #fff3, 0 0 12px #ffd70055;
+      margin: 10px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px gold, inset 0 0 6px #fff5;
+    }
+
+    .message {
+      margin-top: 10px;
+      color: #ffd700;
+      font-size: 10px;
+    }
+
+    .main {
+      width: 400px;
+      height: 400px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .wheel {
+      width: 410px;
+      height: 390px;
+      border-radius: 50%;
+      background: url('roulette.jpg') no-repeat center/cover;
+      border: 6px solid gold;
+      position: relative;
+      transform: rotate(-265.90deg);
+    }
+
+    .ball {
+      width: 15px;
+      height: 15px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin: -8px 0 0 -8px;
+      transform-origin: center center;
+      z-index: 10;
+      box-shadow: 0 0 8px white;
+    }
+
+    .result {
+      margin-top: 10px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 16px;
+      color: gold;
+      text-shadow: 0 0 6px gold;
+      user-select: none;
+      min-height: 24px;
+    }
+    .Zero {
+        background-color: green;
+          width: 100%;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      box-shadow: inset 0 0 4px #000;
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>🎲 ROULETTE 🎲</h1>
+
+  <!-- Grid betting board -->
+  <div class="roulette-board" id="board"></div>
+
+  <button class="button" onclick="spinWheel()">SPIN</button>
+
+  <div class="message" id="message">Click a number to bet.</div>
+
+  <!-- Circular roulette wheel -->
+  <div class="main">
+    <div class="wheel" id="wheel"></div>
+    <div class="ball" id="ball"></div>
+  </div>
+  <div class="result" id="result"></div>
+
+  <script>
+    const board = document.getElementById("board");
+    const message = document.getElementById("message");
+    let selectedBet = null;
+    let spinning = false;
+
+    const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
+    const numbers = [0, ...Array.from({ length: 36 }, (_, i) => i + 1)];
+
+    function getColor(n) {
+      if (n === 0) return 'green';
+      return redNumbers.includes(n) ? 'red' : 'black';
+    }
+
+function buildBoard() {
+  board.innerHTML = '';
+
+
+const zeroDiv = document.createElement("div");
+zeroDiv.className = `Zero`; 
+zeroDiv.textContent = 0;
+zeroDiv.style.gridColumn = "span 12"; 
+zeroDiv.onclick = () => {
+  selectedBet = 0;
+  message.textContent = `You bet on 0. Click SPIN.`;
+};
+board.appendChild(zeroDiv);
+
+
+  // Add the rest of the grid
+  const layout = [
+    [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36],
+    [2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35],
+    [1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34]
+  ];
+
+  layout.forEach(row => {
+    row.forEach(n => {
+      const div = document.createElement("div");
+      div.className = `cell ${getColor(n)}`;
+      div.textContent = n;
+      div.onclick = () => {
+        selectedBet = n;
+        message.textContent = `You bet on ${n}. Click SPIN.`;
+      };
+      board.appendChild(div);
+    });
+  });
+}
+
+
+
+
+    buildBoard();
+
+    const ball = document.getElementById("ball");
+    const result = document.getElementById("result");
+
+    const rouletteNumbers = [
+      0, 32, 15, 19, 4, 21, 2, 25,
+      17, 34, 6, 27, 13, 36, 11, 30,
+      8, 23, 10, 5, 24, 16, 33, 1,
+      20, 14, 31, 9, 22, 18, 29, 7,
+      28, 12, 35, 3, 26
+    ];
+
+    const sliceCount = rouletteNumbers.length;
+    const sliceAngle = 360 / sliceCount;
+
+    function spinWheel() {
+      if (spinning) return;
+      spinning = true;
+      result.textContent = '';
+      message.textContent = 'Spinning...';
+
+      const spinDuration = 7000;
+      const totalRotations = 8;
+      const winningIndex = Math.floor(Math.random() * sliceCount);
+      const winningNumber = rouletteNumbers[winningIndex];
+
+      // Animate the ball moving
+      let start = null;
+      function animateBall(timestamp) {
+        if (!start) start = timestamp;
+        const progress = timestamp - start;
+        const t = Math.min(progress / spinDuration, 1);
+        const eased = easeOutCubic(t);
+        const angleOffset = sliceAngle / 2; 
+const angle = (totalRotations * 360) + (winningIndex * sliceAngle) + angleOffset;
+
+        ball.style.transform = `rotate(${eased * angle}deg) translateX(175px)`;
+
+        if (t < 1) {
+          requestAnimationFrame(animateBall);
+        } else {
+          result.textContent = `🎯 Winning number: ${winningNumber}`;
+          message.textContent = selectedBet === winningNumber
+            ? `🎉 You won! Number: ${winningNumber}`
+            : `😢 You lost. Number: ${winningNumber}`;
+          spinning = false;
+        }
+      }
+
+      requestAnimationFrame(animateBall);
+    }
+
+    function easeOutCubic(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+  </script>
+</body>
+</html>
